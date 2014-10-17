@@ -1,0 +1,14 @@
+CXX=g++
+
+CXXFLAGS=-std=c++11 -IC:/MinGW/include -DSDL_MAIN_HANDLED=1
+LIBS=-lglew32 -lopengl32 -lglu32 -lsdl2 -lgdi32 -lwinmm -lole32 -loleaut32 -limm32 -lversion
+
+MAIN=main.exe
+OBJECTS=main.o scene.o scene_handler.o window.o model.o tools.o light.o
+
+$(MAIN): $(OBJECTS)
+	$(CXX) -o $(MAIN) $(OBJECTS) $(LIBS)
+
+clean:
+	rm -rf $(OBJECTS) $(MAIN)
+
