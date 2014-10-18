@@ -77,8 +77,37 @@ cnt++;
 		sun_z-eye_z
 	};
 
-	float os = sqrt(o[0]*o[0] + o[1]*o[1] + o[2]*o[2]);
+	float Oxz = o[0]*o[0] + o[2]*o[2];
+	float Oyz = o[1]*o[1] + o[2]*o[2];
+	float os = sqrt(Oxz + o[1]*o[1]);
 	float ls = sqrt(l[0]*l[0] + l[1]*l[1] + l[2]*l[2]);
+
+        float Ux = 1.0f;
+	float Uy = 0.0f;
+	float Uz = 0.0f;
+
+	float Vx = 0.0f;
+	float Vy = 1.0f;
+	float Vz = 0.0f;
+	float cos_a = 1.0f;
+	float sin_a = 0.0f;
+	if(Oxz >= 0.001f) {
+		float Uz2 = o[0]*o[0]/Oxz;
+		Uz = sqrt(Uz2);
+		Ux = sqrt(1.0f - Uz2);
+		if(o[0]>0.0f) Uz=-Uz;
+		if(o[2]<0.0f) Uz=-Uz;
+
+		cos_a = o[0] / sqrt(Oxz);
+		sin_a = o[2] / sqrt(Oxz);
+	}
+
+	float cos_b = sqrt(Oxz) / os; 
+	float sin_b = o[1] / os;
+	Vx = Ux;
+	Vz = Uz;
+	Vy = 1.0f; //cos_b;
+	//printf("[%f %f %f] : cos_b=%f sin_b=%f cos_a=%f, sin_a=%f, Vx=%f Vz=%f\n", o[0], o[1], o[2], cos_b, sin_b, cos_a, sin_a, Vx, Vy);
 
 
 	o[0]/=os;
@@ -88,9 +117,9 @@ cnt++;
 	l[1]/=ls;
 	l[2]/=ls;
 
-	delta->x = o[0];
-	delta->y = o[1];
-	delta->z = o[2];
+	delta->x = Vx;
+	delta->y = Vy;
+	delta->z = Vz;
 
 	float cos_Phi = (o[0]*l[0] + o[1]*l[1] + o[2]*l[2]);
 	float phi = acos(cos_Phi);
@@ -142,13 +171,15 @@ void CloudLayer::drawVoxel(types::voxel_t *v)
 	//glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	//billboard.billboardSphericalBegin(p.x, p.y, p.z);
 
-	float dx = v->delta.z;
+	float dx = v->delta.x;
 	float dy = v->delta.y;
-	float dz = -v->delta.x;
-	dx=dy=1.0f;
-	dz=0.0f;
+	float dz = v->delta.z;
+	//dx=dy=1.0f;
+	//dz=0.0f;
+	
 
-	float r = v->r;
+#if 1
+	float r = v->r ;
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(p.x-r*dx, p.y-r*dy, p.z-r*dz);
@@ -163,6 +194,14 @@ void CloudLayer::drawVoxel(types::voxel_t *v)
 	glVertex3f(p.x-r*dx, p.y+r*dy, p.z-r*dz);
 	glEnd();
 	//billboard.billboardEnd();
+#else
+	//dx = 1500.0f / os;
+	float r = v->r * dx;
+	glPointSize(r);
+	glBegin(GL_POINTS);
+	glVertex3f(p.x, p.y, p.z);
+	glEnd();
+#endif
 
 }
 
@@ -185,6 +224,7 @@ void CloudLayer::draw(float position[3]) {
 	std::sort(basement.begin(), basement.end(), cmp_voxels);
 
 	material->draw();
+
 	float c=1.0f;
 	for(size_t idx=0; idx<voxels.size(); idx++) {
 	//for(size_t idx=0; idx<500; idx++) {
@@ -203,6 +243,7 @@ void CloudLayer::draw(float position[3]) {
 	}
 #endif
 
+	//exit(0);
 	glPopMatrix();
 
 }

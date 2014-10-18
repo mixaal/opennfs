@@ -320,6 +320,10 @@ namespace visualizer {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
+
+		//glEnable(GL_POINT_SPRITE);
+		//glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+
 		// glAlphaFunc ( GL_GREATER, 0.0001 ) ;
 	    	// glEnable ( GL_ALPHA_TEST ) ;
 
@@ -378,6 +382,10 @@ namespace visualizer {
 		glEnable(GL_ALPHA_TEST);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(true);
+
+	
+		//glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_FALSE);
+		//glDisable(GL_POINT_SPRITE);
 	}
 
  	void Scene::draw() {

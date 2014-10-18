@@ -13,7 +13,7 @@
 #define KIA_RIO_RED    2
 #define CLOUD_LAYER    3
 
-static float eye_x=0.0f, eye_z=-700.f, eye_y = 20.0f;
+static float eye_x=0.0f, eye_z=200.f, eye_y = 20.0f;
 static float camera_y = 0.0f;
 
 class SceneHandlerImpl: public visualizer::SceneHandler {
