@@ -110,4 +110,120 @@ void Billboard::end() {
 	glPopMatrix();
 }
 
+
+void Billboard::rotate(float *x, float *y, float a)
+{
+	float xx = *x*cos(a) - *y*sin(a);
+	float yy = *x*sin(a) + *y*cos(a);
+
+	*x = xx;
+	*y = yy;
+}
+
+void Billboard::draw(float x, float y, float z, float width, float height)
+{
+
+	x+=_position[0];
+	y+=_position[1];
+	z+=_position[2];
+
+
+	float Ax = -width;
+	float Ay = -height;
+	float Az = 0;
+
+	float Bx = +width;
+	float By = -height;
+	float Bz = 0;
+
+	float Cx = +width;
+	float Cy = +height;
+	float Cz = 0;
+
+
+	float Dx = -width;
+	float Dy = +height;
+	float Dz = 0;
+
+	float o[3] = {
+		x-camera[0], 
+		y-camera[1],
+		z-camera[2]
+	};
+
+
+	float d = sqrt(o[0]*o[0] + o[1]*o[1] + o[2]*o[2]);
+	float Oxz = sqrt(o[0]*o[0] + o[2]*o[2]);
+	float theta = 0.0f;
+	if(Oxz!=0.0f) {
+		theta = 3.1415/2 - acosf(o[0] / Oxz);
+	}
+	
+
+
+	float phi = asinf(o[1] / d);  // point elevation above camera
+
+	//printf("y=%f cy=%f o[1]=%f d=%f phi=%f\n", y, camera[1], o[1], d, 180.0f*phi/3.141592);
+
+	rotate(&Ay, &Az, phi);
+	rotate(&By, &Bz, phi);
+	rotate(&Cy, &Cz, phi);
+	rotate(&Dy, &Dz, phi);
+
+	rotate(&Ax, &Az, theta);
+	rotate(&Bx, &Bz, theta);
+	rotate(&Cx, &Cz, theta);
+	rotate(&Dx, &Dz, theta);
+
+
+	if(o[2]>0) {
+		Az=-Az;
+		Bz=-Bz;
+		Cz=-Cz;
+		Dz=-Dz;
+	}
+#if 0
+	printf("R=%f\n", width);
+	printf("A [ %f %f %f]\n", Ax, Ay, Az);
+	printf("B [ %f %f %f]\n", Bx, By, Bz);
+	printf("C [ %f %f %f]\n", Cx, Cy, Cz);
+	printf("D [ %f %f %f]\n", Dx, Dy, Dz);
+#endif
+
+	x-=_position[0];
+	y-=_position[1];
+	z-=_position[2];
+
+	Ax+=x;
+	Ay+=y;
+	Az+=z;
+
+	Bx+=x;
+	By+=y;
+	Bz+=z;
+
+	Cx+=x;
+	Cy+=y;
+	Cz+=z;
+
+	Dx+=x;
+	Dy+=y;
+	Dz+=z;
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex3f(Ax, Ay, Az);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex3f(Bx, By, Bz);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex3f(Cx, Cy, Cz);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex3f(Dx, Dy, Dz);
+	glEnd();
+
+}
+
 }

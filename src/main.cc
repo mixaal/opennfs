@@ -13,8 +13,20 @@
 #define KIA_RIO_RED    2
 #define CLOUD_LAYER    3
 
-static float eye_x=0.0f, eye_z=200.f, eye_y = 20.0f;
 static float camera_y = 0.0f;
+
+static struct {
+	float elevation, azimuth;
+	float x, y, z;
+	float velocity;
+} Camera = { 
+	.elevation = 0.0f, 
+	.azimuth=90.0f, 
+	.x = 0.0f, 
+	.y=20.0f, 
+	.z=-700.0f,
+	.velocity = 1.5f
+};
 
 class SceneHandlerImpl: public visualizer::SceneHandler {
 public:
@@ -23,37 +35,52 @@ public:
 
 	}
 
+	void onMouseWheel(int horiz, int vert) {
+		//printf("horiz=%d vert=%d \n", horiz, vert);
+		Camera.velocity += vert / 10.0f;
+	}
+
+
+	void onMouseMotion(int dx, int dy) {
+		static bool firstMotion = true;
+
+		if(firstMotion) {
+			// screen initialization
+			firstMotion = false;
+			return;
+		}
+		Camera.elevation -= dy/8.0f;
+		Camera.azimuth += dx/8.0f;
+
+		Camera.elevation = fmax( -90.0f, Camera.elevation );
+		Camera.elevation = fmin( 90.0f, Camera.elevation );
+
+		Camera.azimuth = fmod( Camera.azimuth, 360.0f );
+	
+		//printf("MOUSE MOTION: [%d %d], Camera [%f %f]\n", dx, dy, Camera.azimuth, Camera.elevation);
+		
+	}
+
 	void onKeyDown(SDL_Keysym* keysym) {
                 static bool wireframe=false;
 		switch (keysym->sym) {
-		case SDLK_UP:
-			eye_z += 5.5f;
+
+		case SDLK_HOME:
+			Camera.elevation = 0.0f;
 			break;
-		case SDLK_DOWN:
-			eye_z -=0.5f;
-			break;
-		case SDLK_RIGHT:
-			eye_x -= 0.5f;
-			break;
-		case SDLK_LEFT:
-			eye_x += 0.5f;
-			break;
-		case SDLK_PAGEUP:
-			camera_y += 0.1f;
-			break;
+
 		case SDLK_PAGEDOWN:
-			camera_y -= 0.1f;
+			Camera.y -= 5.0f;
 			break;
-		case SDLK_a:
-			eye_y += 5.5f;
-			break;
-		case SDLK_z:
-			eye_y -= 5.5f;
+
+		case SDLK_PAGEUP:
+			Camera.y += 5.0f;
 			break;
 
 		case SDLK_ESCAPE:
 			terminate();
 			break;
+
                 case SDLK_F10:
 			if( wireframe ) {
 				wireframe = false;
@@ -80,6 +107,13 @@ public:
 		case SDL_KEYDOWN:
 			onKeyDown(&event->key.keysym);
 			break;
+		case SDL_MOUSEMOTION:
+			onMouseMotion(event->motion.xrel, event->motion.yrel);
+			break;
+
+		case SDL_MOUSEWHEEL:
+			onMouseWheel(event->wheel.x, event->wheel.y);
+			break;
 		case SDL_QUIT:
 			terminate();
 			break;
@@ -91,6 +125,18 @@ public:
 	}
 
 };
+
+
+static void cam2sphere(float v[3])
+{
+	float a = 3.1415f * Camera.azimuth / 180.0f;
+	float b = 3.1415f * Camera.elevation / 180.0f;
+
+	v[0] = cos(a)*cos(b);
+	v[1] = sin(b);
+	v[2] = sin(a)*cos(b);
+}
+
 static GLint triangle;
 static visualizer::SkyDome *sky = NULL;
 static int _day=1, _hour=8, _minute=0, _sec=0;
@@ -172,6 +218,8 @@ int main(int argc, char *argv[]) {
 		static time_t start = time(NULL);
 		fps++;
 
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+
 		time_t now = time(NULL);
 		if(now-start>=5) {
 			float d = now-start;
@@ -180,12 +228,23 @@ int main(int argc, char *argv[]) {
 			fps = 0;
 		}
 		dissipation += 0.0001;
-		//eye_z+=0.9f;
-		//eye_y+=0.3f;
-		s->eye(eye_x, eye_y, eye_z);
-		s->forward(eye_x, eye_y+camera_y, eye_z+1.0f);
-           	//s->eye(-sky->solX(), -sky->solY(), -sky->solZ());
-		//s->forward(0.0f, 0.0f, 0.0f);
+
+
+		float _direction[3];
+		cam2sphere(_direction);
+
+		//printf("_lookAt=[%f %f %f]\n", _lookAt[0]-Camera.x, _lookAt[1]-Camera.y, _lookAt[2]-Camera.z);
+
+		Camera.x += Camera.velocity*_direction[0];
+		Camera.y += Camera.velocity*_direction[1];
+		Camera.z += Camera.velocity*_direction[2];
+
+		s->eye(Camera.x, Camera.y, Camera.z);
+		s->forward(
+			Camera.x + _direction[0],
+			Camera.y + _direction[1],
+			Camera.z + _direction[2]
+		);
 		sky->update(2015, 8, 1, hour, minute, 0);
 		visualizer::CloudLayer *clouds = s->get_cloud_layer().at(0);
 //		visualizer::CloudLayer *clouds2 = s->get_cloud_layer().at(1);

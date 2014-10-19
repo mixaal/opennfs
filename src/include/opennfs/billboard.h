@@ -1,6 +1,7 @@
 #ifndef _BILLBOARD_H_
 #define _BILLBOARD_H_
 
+#include <stdio.h>
 #include <math.h>
 namespace visualizer {
 
@@ -38,9 +39,17 @@ public:
 	void sphericalBegin(float x, float y, float z);
 	void cheatSphericalBegin();
 	void end();
+	void draw(float x, float y, float z, float width, float height);
+	void position(float x, float y, float z) {
+		_position[0] = x;
+		_position[1] = y;
+		_position[2] = z;
+	}
 
 private:
+	void rotate(float *x, float *y, float a);
 	float camera[3];
+	float _position[3];
 	
 };
 }

@@ -9,6 +9,7 @@
 
 #include <opennfs/material.h>
 #include <opennfs/matrix.h>
+#include <opennfs/billboard.h>
 
 namespace visualizer {
 
@@ -83,7 +84,7 @@ private:
 	void read_cloud_map(std::string filename);
         void generate();
 	void optimize();
-	void drawVoxel(types::voxel_t *v) ;
+	void drawVoxel(types::voxel_t *v, Billboard* b) ;
 	float phase_function(types::XYZ p, types::XYZ *delta);
 	float rayleigh(float a); // phase function
 	float henyey_greenstein(float a, float g=0.99f); //phase function

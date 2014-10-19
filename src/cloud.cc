@@ -82,32 +82,23 @@ cnt++;
 	float os = sqrt(Oxz + o[1]*o[1]);
 	float ls = sqrt(l[0]*l[0] + l[1]*l[1] + l[2]*l[2]);
 
+
+	float phi = asinf(o[1] / os);
+//	float theta = asinf(o[0] / (os*sin(phi)));
+
         float Ux = 1.0f;
-	float Uy = 0.0f;
+	float Uy = 1.0f;
 	float Uz = 0.0f;
 
-	float Vx = 0.0f;
-	float Vy = 1.0f;
-	float Vz = 0.0f;
-	float cos_a = 1.0f;
-	float sin_a = 0.0f;
-	if(Oxz >= 0.001f) {
-		float Uz2 = o[0]*o[0]/Oxz;
-		Uz = sqrt(Uz2);
-		Ux = sqrt(1.0f - Uz2);
-		if(o[0]>0.0f) Uz=-Uz;
-		if(o[2]<0.0f) Uz=-Uz;
+	float Vx = 1.0f;
+	float Vy = Uz * sin(phi) + Uy * cos(phi);
+	float Vz = Uz * cos(phi) - Uy * sin(phi);
 
-		cos_a = o[0] / sqrt(Oxz);
-		sin_a = o[2] / sqrt(Oxz);
-	}
+	//Ux = Vx;
+	//Uz = Vz;
 
-	float cos_b = sqrt(Oxz) / os; 
-	float sin_b = o[1] / os;
-	Vx = Ux;
-	Vz = Uz;
-	Vy = 1.0f; //cos_b;
-	//printf("[%f %f %f] : cos_b=%f sin_b=%f cos_a=%f, sin_a=%f, Vx=%f Vz=%f\n", o[0], o[1], o[2], cos_b, sin_b, cos_a, sin_a, Vx, Vy);
+	//Vz = Uz * cos(theta) + Ux * sin(theta);
+	//Vx = -Uz * sin(theta) + Ux * cos(theta);
 
 
 	o[0]/=os;
@@ -119,10 +110,10 @@ cnt++;
 
 	delta->x = Vx;
 	delta->y = Vy;
-	delta->z = Vz;
+	delta->z = -Vz;
 
 	float cos_Phi = (o[0]*l[0] + o[1]*l[1] + o[2]*l[2]);
-	float phi = acos(cos_Phi);
+	phi = acos(cos_Phi);
 #if 0
 	if(0==(cnt&511)) {
 		std::cout << "P: " << p.x << ", " << p.y << ", " << p.z << std::endl;
@@ -148,7 +139,7 @@ cnt++;
 }
 
 
-void CloudLayer::drawVoxel(types::voxel_t *v) 
+void CloudLayer::drawVoxel(types::voxel_t *v, Billboard *billboard) 
 {
 
 	float red = sun_red * v->c;
@@ -180,19 +171,9 @@ void CloudLayer::drawVoxel(types::voxel_t *v)
 
 #if 1
 	float r = v->r ;
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex3f(p.x-r*dx, p.y-r*dy, p.z-r*dz);
 
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex3f(p.x+r*dx, p.y-r*dy, p.z+r*dz);
-
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex3f(p.x+r*dx, p.y+r*dy, p.z+r*dz);
-
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex3f(p.x-r*dx, p.y+r*dy, p.z-r*dz);
-	glEnd();
+	//Billboard billboard(position);
+	billboard->draw(p.x, p.y, p.z, r, r);
 	//billboard.billboardEnd();
 #else
 	//dx = 1500.0f / os;
@@ -207,7 +188,6 @@ void CloudLayer::drawVoxel(types::voxel_t *v)
 
 void CloudLayer::draw(float position[3]) {
 	//std::cout << "VOXELS SZ: " << voxels.size() << std::endl;
-	Billboard billboard(position);
 
 	sort_voxels cmp_voxels(this);
 	glPushMatrix();
@@ -221,7 +201,10 @@ void CloudLayer::draw(float position[3]) {
 
 
 	std::sort(voxels.begin(), voxels.end(), cmp_voxels);
-	std::sort(basement.begin(), basement.end(), cmp_voxels);
+	//std::sort(basement.begin(), basement.end(), cmp_voxels);
+
+	Billboard billboard(position);
+	billboard.position(cloud_x, cloud_y, cloud_z);
 
 	material->draw();
 
@@ -230,15 +213,15 @@ void CloudLayer::draw(float position[3]) {
 	//for(size_t idx=0; idx<500; idx++) {
 		types::voxel_t *v = voxels.at(idx);
 		//billboard.cheatSphericalBegin();
-		drawVoxel(v);
+		drawVoxel(v, &billboard);
 		//billboard.end();
 	}
-#if 1
+#if 0
 	base->draw();
 	for(size_t idx=0; idx<basement.size(); idx++) {
 		types::voxel_t *v = basement.at(idx);
 		//billboard.cheatSphericalBegin();
-		drawVoxel(v);
+		drawVoxel(v, &billboard);
 		//billboard.end();
 	}
 #endif
@@ -349,6 +332,10 @@ void CloudLayer::generate()
 				//double r=0.06f * scale;
 				double r = _CLOUD_PARTICLE_RADIUS*scale * 2.0/256 ;
 				if(k==0) r*=2;
+				else if(k==1) r*=1.75f;
+				else r*=1.5f;
+					
+				
 				p.x += 0.5f * r * random_shift.x;
 				p.y += 0.5f * r * random_shift.y;
 				p.z += 0.5f * r * random_shift.z;
@@ -411,7 +398,7 @@ types::XYZ p;
 
 				cloud3d[i][j][k].r+=(rand()&0xff)/(double)0xff/50;
 				if(k==0) {
-					basement.push_back(&cloud3d[i][j][k]);
+					voxels.push_back(&cloud3d[i][j][k]);
 				}
 				else {
 					voxels.push_back(&cloud3d[i][j][k]);
