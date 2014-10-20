@@ -7,26 +7,14 @@
 #include <opennfs/window.h>
 #include <opennfs/skydome.h>
 #include <opennfs/cloud.h>
+#include <opennfs/camera.h>
 
 #define KIA_RIO_YELLOW 0
 #define KIA_RIO_BLUE   1
 #define KIA_RIO_RED    2
 #define CLOUD_LAYER    3
 
-static float camera_y = 0.0f;
-
-static struct {
-	float elevation, azimuth;
-	float x, y, z;
-	float velocity;
-} Camera = { 
-	.elevation = 0.0f, 
-	.azimuth=90.0f, 
-	.x = 0.0f, 
-	.y=20.0f, 
-	.z=-700.0f,
-	.velocity = 1.5f
-};
+static visualizer::Camera camera(0.0f, 20.0f, -700.0f, 90.0f, 0.0f, 1.5f);
 
 class SceneHandlerImpl: public visualizer::SceneHandler {
 public:
@@ -36,8 +24,9 @@ public:
 	}
 
 	void onMouseWheel(int horiz, int vert) {
-		//printf("horiz=%d vert=%d \n", horiz, vert);
-		Camera.velocity += vert / 10.0f;
+		float v = camera.get_velocity();
+		v += vert / 10.0f;
+		camera.set_velocity(v);
 	}
 
 
@@ -49,13 +38,19 @@ public:
 			firstMotion = false;
 			return;
 		}
-		Camera.elevation -= dy/8.0f;
-		Camera.azimuth += dx/8.0f;
 
-		Camera.elevation = fmax( -90.0f, Camera.elevation );
-		Camera.elevation = fmin( 90.0f, Camera.elevation );
+		float elevation = camera.get_elevation();
+		float azimuth = camera.get_azimuth();
+		
+		elevation -= dy/8.0f;
+		azimuth += dx/8.0f;
 
-		Camera.azimuth = fmod( Camera.azimuth, 360.0f );
+		elevation = fmax( -90.0f, elevation );
+		elevation = fmin( 90.0f, elevation );
+
+		azimuth = fmod( azimuth, 360.0f );
+		
+		camera.look_at(azimuth, elevation);
 	
 		//printf("MOUSE MOTION: [%d %d], Camera [%f %f]\n", dx, dy, Camera.azimuth, Camera.elevation);
 		
@@ -66,15 +61,15 @@ public:
 		switch (keysym->sym) {
 
 		case SDLK_HOME:
-			Camera.elevation = 0.0f;
+			camera.look_straight();
 			break;
 
 		case SDLK_PAGEDOWN:
-			Camera.y -= 5.0f;
+			camera.update_altitude(-5.0f);
 			break;
 
 		case SDLK_PAGEUP:
-			Camera.y += 5.0f;
+			camera.update_altitude(5.0f);
 			break;
 
 		case SDLK_ESCAPE:
@@ -127,15 +122,6 @@ public:
 };
 
 
-static void cam2sphere(float v[3])
-{
-	float a = 3.1415f * Camera.azimuth / 180.0f;
-	float b = 3.1415f * Camera.elevation / 180.0f;
-
-	v[0] = cos(a)*cos(b);
-	v[1] = sin(b);
-	v[2] = sin(a)*cos(b);
-}
 
 static GLint triangle;
 static visualizer::SkyDome *sky = NULL;
@@ -229,22 +215,9 @@ int main(int argc, char *argv[]) {
 		}
 		dissipation += 0.0001;
 
-
-		float _direction[3];
-		cam2sphere(_direction);
-
-		//printf("_lookAt=[%f %f %f]\n", _lookAt[0]-Camera.x, _lookAt[1]-Camera.y, _lookAt[2]-Camera.z);
-
-		Camera.x += Camera.velocity*_direction[0];
-		Camera.y += Camera.velocity*_direction[1];
-		Camera.z += Camera.velocity*_direction[2];
-
-		s->eye(Camera.x, Camera.y, Camera.z);
-		s->forward(
-			Camera.x + _direction[0],
-			Camera.y + _direction[1],
-			Camera.z + _direction[2]
-		);
+		camera.update();
+		s->eye(camera.get_position());
+		s->forward(camera.get_forward());
 		sky->update(2015, 8, 1, hour, minute, 0);
 		visualizer::CloudLayer *clouds = s->get_cloud_layer().at(0);
 //		visualizer::CloudLayer *clouds2 = s->get_cloud_layer().at(1);

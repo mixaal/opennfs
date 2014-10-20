@@ -140,15 +140,35 @@ namespace visualizer {
 		_position[1] = y;
 		_position[2] = z;
 	}
+	
+	void Scene::eye(types::XYZ position) {
+		_position[0] = position.x;
+		_position[1] = position.y;
+		_position[2] = position.z;
+	}
+
 	void Scene::up(float x, float y, float z) {
 		_up[0] = x;
 		_up[1] = y;
 		_up[2] = z;
 	}
+
+	void Scene::up(types::XYZ direction) {
+		_up[0] = direction.x;
+		_up[1] = direction.y;
+		_up[2] = direction.z;
+	}
+
 	void Scene::forward(float x, float y, float z) {
 		_forward[0] = x;
 		_forward[1] = y;
 		_forward[2] = z;
+	}
+
+	void Scene::forward(types::XYZ direction) {
+		_forward[0] = direction.x;
+		_forward[1] = direction.y;
+		_forward[2] = direction.z;
 	}
 
 	void Scene::fpsrate(int hz) {

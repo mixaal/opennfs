@@ -14,6 +14,7 @@
 #include <opennfs/light.h>
 #include <opennfs/skydome.h>
 #include <opennfs/cloud.h>
+#include <opennfs/types.h>
 
 namespace visualizer {
 
@@ -125,8 +126,11 @@ public:
 
 	// Set camera position, up and target vectors
 	void eye(float x, float y, float z);
+	void eye(types::XYZ position);
 	void up(float x, float y, float z);
+	void up(types::XYZ direction);
 	void forward(float x, float y, float z);
+	void forward(types::XYZ direction);
 
 	void fpsrate(int hz);
 	int get_fps();

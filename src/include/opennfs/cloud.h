@@ -10,14 +10,11 @@
 #include <opennfs/material.h>
 #include <opennfs/matrix.h>
 #include <opennfs/billboard.h>
+#include <opennfs/types.h>
 
 namespace visualizer {
 
 namespace types {
-
-	typedef struct {
-		float x,y,z;
-	} XYZ;
 
 	typedef struct {
 		XYZ p;
