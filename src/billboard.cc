@@ -152,6 +152,7 @@ void Billboard::draw(float x, float y, float z, float width, float height)
 	};
 
 
+#if 1
 	float d = sqrt(o[0]*o[0] + o[1]*o[1] + o[2]*o[2]);
 	float Oxz = sqrt(o[0]*o[0] + o[2]*o[2]);
 	float theta = 0.0f;
@@ -164,7 +165,6 @@ void Billboard::draw(float x, float y, float z, float width, float height)
 	float phi = asinf(o[1] / d);  // point elevation above camera
 
 	//printf("y=%f cy=%f o[1]=%f d=%f phi=%f\n", y, camera[1], o[1], d, 180.0f*phi/3.141592);
-
 	rotate(&Ay, &Az, phi);
 	rotate(&By, &Bz, phi);
 	rotate(&Cy, &Cz, phi);
@@ -175,13 +175,13 @@ void Billboard::draw(float x, float y, float z, float width, float height)
 	rotate(&Cx, &Cz, theta);
 	rotate(&Dx, &Dz, theta);
 
-
 	if(o[2]>0) {
 		Az=-Az;
 		Bz=-Bz;
 		Cz=-Cz;
 		Dz=-Dz;
 	}
+#endif
 #if 0
 	printf("R=%f\n", width);
 	printf("A [ %f %f %f]\n", Ax, Ay, Az);
@@ -210,7 +210,7 @@ void Billboard::draw(float x, float y, float z, float width, float height)
 	Dy+=y;
 	Dz+=z;
 
-	glBegin(GL_QUADS);
+	//glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(Ax, Ay, Az);
 
@@ -222,7 +222,7 @@ void Billboard::draw(float x, float y, float z, float width, float height)
 
 	glTexCoord2f(0.0f, 1.0f);
 	glVertex3f(Dx, Dy, Dz);
-	glEnd();
+	//glEnd();
 
 }
 

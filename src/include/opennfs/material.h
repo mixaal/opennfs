@@ -10,6 +10,7 @@
 
 #include <map>
 #include <opennfs/opengl.h>
+#include <opennfs/sdl.h>
 
 namespace visualizer {
 #define TX_MAX_SZ 1024
@@ -32,6 +33,7 @@ public:
 	void draw();
 	void gauss_texture(float r, float g, float b, float a=1.0f, size_t width=64);
 	void wyvill_texture(float r, float g, float b, float a=1.0f, size_t width=64);
+	void texture_from_data(size_t width, size_t height, Uint32 *pixels);
 private:
 	float nexp;
 	float Ka[4];

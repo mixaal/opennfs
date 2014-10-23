@@ -209,6 +209,7 @@ void CloudLayer::draw(float position[3]) {
 	material->draw();
 
 	float c=1.0f;
+	glBegin(GL_QUADS);
 	for(size_t idx=0; idx<voxels.size(); idx++) {
 	//for(size_t idx=0; idx<500; idx++) {
 		types::voxel_t *v = voxels.at(idx);
@@ -216,6 +217,7 @@ void CloudLayer::draw(float position[3]) {
 		drawVoxel(v, &billboard);
 		//billboard.end();
 	}
+	glEnd();
 #if 0
 	base->draw();
 	for(size_t idx=0; idx<basement.size(); idx++) {
@@ -228,6 +230,8 @@ void CloudLayer::draw(float position[3]) {
 
 	//exit(0);
 	glPopMatrix();
+
+	light_shafts();
 
 }
 
@@ -270,6 +274,22 @@ void CloudLayer::read_cloud_map(std::string pathname) {
 		for(size_t j=0; j<w; j++) {
 			cloud3d[i][j] = new types::voxel_t[CLOUD_MAX_LAYER_HEIGHT];
 		}
+
+	Uint32 *lightmap_pixels = new Uint32[mass_no];
+	for(int i=0; i<mass_no; i++) {
+		unsigned char mass  = cloud_mass.at(i);
+		unsigned char R, G, B, A;
+		R=G=B=0xff;
+		if(mass>0x80) A=0;
+		else {
+			A=0x80 - mass;
+		}
+		Uint32 color = (A<<24) | (B << 16) | (G << 8) | R;
+		lightmap_pixels[i]=color;
+	}
+	std::cout << "LIGHT MAP Texture " << std::endl;
+	lightmap->texture_from_data(w, w, lightmap_pixels);
+	std::cout << "LIGHT MAP Texture Done" << std::endl;
 }
 
 
@@ -473,4 +493,118 @@ void CloudLayer::evolve(int hour, int minute)
 
 }
 
+
+// Project the point x, cloud_y, z into point with y==0.0f
+types::XYZ CloudLayer::project(float x, float y, float z)
+{
+	types::XYZ v = {
+		.x = x - sun_x,
+		.y = y - sun_y,
+		.z = z - sun_z
+	};
+
+	float t = - sun_y / v.y;
+
+	types::XYZ T = {
+		.x = sun_x + v.x*t,
+		.y = 0.0f,
+		.z = sun_z + v.z*t
+	};
+
+	return T;
+}
+
+
+types::UV CloudLayer::uv(types::XYZ P)
+{
+
+	types::UV texture;
+
+	float range_x = 2/128.0f * scale * cloud_map_width ;
+	float range_z = 4/128.0f * scale * cloud_map_width ;
+	
+	if(P.y == cloud_y) {
+		texture.u = (P.x - cloud_x) / range_x;
+		texture.v = (P.z - cloud_z) / range_z;
+		return texture;
+	}
+
+	types::XYZ v = {
+		.x = P.x - sun_x,
+		.y = P.y - sun_y,
+		.z = P.z - sun_z
+	};
+
+	float t = (cloud_y - sun_y) / v.y;
+
+	float x = sun_x + v.x*t;
+	float z = sun_z + v.z*t;
+
+	texture.u = (x - cloud_x) / range_x;
+	texture.v = (z - cloud_z) / range_z;
+	
+	return texture;
+}
+
+void CloudLayer::render_plate(types::XYZ A, types::XYZ B, types::XYZ C, types::XYZ D, float v)
+{
+
+
+	float dx1 = A.x - B.x;
+	float dy1 = A.y - B.y;
+	float dz1 = A.z - B.z;
+
+	float dx2 = C.x - D.x;
+	float dy2 = C.y - D.y;
+	float dz2 = C.z - D.z;
+
+	float top = sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
+	float bottom = sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
+
+	float w = top / bottom;
+	glTexCoord4f(0.0f, v*w, 0.0f, w);
+	glVertex3f(A.x, A.y, A.z);
+	glTexCoord4f(w, v*w, 0.0f, w);
+	glVertex3f(B.x, B.y, B.z);
+	glTexCoord2f(1.0f, v);
+	glVertex3f(C.x, C.y, C.z);
+	glTexCoord2f(0.0f, v);
+	glVertex3f(D.x, D.y, D.z);
+
+}
+
+
+void CloudLayer::light_shafts()
+{
+	// render light shafts only when we are under the cloud layer
+	if(eye_y > cloud_y) return;
+	if(sun_y < 2*cloud_y) return;
+
+	lightmap->draw();
+	
+	glDisable(GL_LIGHTING);
+	//glDisable(GL_TEXTURE_2D);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBegin(GL_QUADS);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.01f);
+
+	
+	float range_x = 2/128.0f * scale * cloud_map_width ;
+	float range_z = 4/128.0f * scale * cloud_map_width ;
+
+	for(float z=cloud_z; z<cloud_z+range_z; z+=100.0f) {
+
+		types::XYZ A = {cloud_x, cloud_y, z};
+		types::XYZ B = {cloud_x+range_x, cloud_y, z};
+		types::XYZ C = project(cloud_x+range_x, cloud_y, z);
+		types::XYZ D = project(cloud_x, cloud_y, z);
+
+		render_plate(A, B, C, D, (z-cloud_z)/range_z);
+	}
+
+	glEnd();
+	glEnable(GL_LIGHTING);
+
+	
+}
 }

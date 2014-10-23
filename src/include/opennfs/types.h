@@ -10,6 +10,10 @@ namespace visualizer {
 			float x,y,z;
 		} XYZ;
 
+		typedef struct {
+			float u, v;
+		} UV;
+
 	}
 }
 

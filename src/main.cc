@@ -8,12 +8,15 @@
 #include <opennfs/skydome.h>
 #include <opennfs/cloud.h>
 #include <opennfs/camera.h>
+#include <opennfs/world_time.h>
 
 #define KIA_RIO_YELLOW 0
 #define KIA_RIO_BLUE   1
 #define KIA_RIO_RED    2
 #define CLOUD_LAYER    3
 
+
+static game::WorldTime world_time(2014, 8, 1, 14, 0, 0);
 static visualizer::Camera camera(0.0f, 20.0f, -700.0f, 90.0f, 0.0f, 1.5f);
 
 class SceneHandlerImpl: public visualizer::SceneHandler {
@@ -21,6 +24,22 @@ public:
 	SceneHandlerImpl(visualizer::Window *window) :
 			SceneHandler(window) {
 
+	}
+
+	void onMousePress(Uint8 button)
+	{
+		switch(button) {
+			case SDL_BUTTON_LEFT:
+				world_time.forward();
+				break;
+			case SDL_BUTTON_MIDDLE:
+				world_time.freeze();
+				camera.set_velocity(0);
+				break;
+			case SDL_BUTTON_RIGHT:
+				world_time.backward();
+				break;
+		}
 	}
 
 	void onMouseWheel(int horiz, int vert) {
@@ -102,6 +121,11 @@ public:
 		case SDL_KEYDOWN:
 			onKeyDown(&event->key.keysym);
 			break;
+		
+		case SDL_MOUSEBUTTONDOWN:
+			onMousePress(event->button.button);
+			break;
+
 		case SDL_MOUSEMOTION:
 			onMouseMotion(event->motion.xrel, event->motion.yrel);
 			break;
@@ -155,7 +179,7 @@ int main(int argc, char *argv[]) {
 		"data/clouds/cloud-map-256",
 		//"overcast.map",
 		//"cumulus_layer.map",
-		//"cloud-layer.map",
+		//"data/clouds/cloud-layer.map",
 		100.0f,
 		500.0f
 	);
@@ -181,8 +205,12 @@ int main(int argc, char *argv[]) {
 //	scene1->add_clouds(clouds3);
         sky = new visualizer::SkyDome(
 		50.0f, 15.0f,   /* latitude, longitude */
-		2015, 8, 1,     /* year, month, day */
-		8, 0, 0,      /* time */
+		world_time.get_year(), 
+		world_time.get_month(), 
+		world_time.get_day(),
+		world_time.get_hour(),
+		world_time.get_minute(),
+		world_time.get_seconds(), 
 		1.0f,            /* exposure */
 		4.0f,            /* turbidity */
 		15.0f,
@@ -216,13 +244,14 @@ int main(int argc, char *argv[]) {
 		dissipation += 0.0001;
 
 		camera.update();
+		world_time.update();
 		s->eye(camera.get_position());
 		s->forward(camera.get_forward());
-		sky->update(2015, 8, 1, hour, minute, 0);
+		sky->update(world_time);
 		visualizer::CloudLayer *clouds = s->get_cloud_layer().at(0);
 //		visualizer::CloudLayer *clouds2 = s->get_cloud_layer().at(1);
 //		visualizer::CloudLayer *clouds3 = s->get_cloud_layer().at(2);
-		clouds->evolve(hour, minute);
+		clouds->evolve(world_time.get_hour(), world_time.get_minute());
 //		clouds2->evolve(hour, minute);
 //		clouds3->evolve(hour, minute);
 

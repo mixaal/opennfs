@@ -4,6 +4,8 @@
 #include <opennfs/stars.h>
 #include <math.h>
 #include <stdio.h>
+#include <opennfs/world_time.h>
+
 namespace visualizer {
 
 /****************************************************************************
@@ -418,6 +420,11 @@ void SkyDome::get_sun_position(float *x_vec, float *y_vec, float *z_vec) {
 	*y_vec = distance/2 * sin(el);
 	//printf("***** SUN POS [%f %f %f]\n", *x_vec, *y_vec, *z_vec);
 
+}
+
+void SkyDome::update(game::WorldTime now)
+{
+	update(now.get_year(), now.get_month(), now.get_day(), now.get_hour(), now.get_minute(), now.get_seconds());
 }
 
 void SkyDome::update(int _year, int _month, int _day, int _hour, int _minute, int _sec)

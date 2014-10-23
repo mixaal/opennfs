@@ -282,6 +282,7 @@ namespace visualizer {
 	}
 
 	void Scene::setup_up_fog_based_on_observer_to_sun_angle() {
+#if _ENABLE_HAZE_AS_FOG
 		float r = fabs(_atmosphere.observer_angle - 1.0f) / 2.0f;
 		this->fog(
 				_atmosphere.sky->hazeRed(),
@@ -291,6 +292,7 @@ namespace visualizer {
 				800.0f
 			);
 	//	_fog.enabled = (_atmosphere.observer_angle < 0.0f );
+#endif
 
 	}
 

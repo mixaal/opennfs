@@ -4,6 +4,7 @@
 #include <math.h>
 #include <iostream>
 #include <opennfs/ephem.h>
+#include <opennfs/world_time.h>
 namespace visualizer {
 
 
@@ -25,6 +26,7 @@ public:
         }
 	void draw_stars();
 	void update(int year, int month, int day, int hour, int minute, int sec);
+	void update(game::WorldTime now);
 	float solX() { return sol_x; }
 	float solY() { return sol_y; }
 	float solZ() { return sol_z; }

@@ -41,14 +41,15 @@ class CloudLayer {
 public:
 	CloudLayer(std::string layer_definition_file, float altitude = 0.0f, float scale = 1.0f) :
 		altitude(altitude), scale(scale) {
+		material = new Material();
+		base = new Material();
+		lightmap = new Material();
 
 		read_cloud_map(layer_definition_file);
 		generate();
 		optimize();
 
 		sun_blue = sun_green = sun_red = 1.0f;
-		material = new Material();
-		base = new Material();
 		//material->add_texture("cumulus2.png");
 		//base->add_texture("cumulus2.png");
 
@@ -70,7 +71,7 @@ public:
 	void position(float x, float y, float z);
 	void set_observer_position(float x, float y, float z);
 	void set_sun_position(float x, float y, float z);
-	
+	void light_shafts();
 
 private:
 	float altitude;
@@ -91,6 +92,10 @@ private:
 	float get_mass(size_t i, size_t j);
 	float max_vapor = 0;
 	bool remove_cloud_cell(ssize_t i, ssize_t j, ssize_t k);
+	types::XYZ project(float x, float y, float z);
+	types::UV uv(types::XYZ P);
+	void render_plate(types::XYZ A, types::XYZ B, types::XYZ C, types::XYZ D, float v);
+	void render_shell(float distance, float angle1, float angle2);
 	std::vector<types::voxel_t*> voxels;
 	std::vector<types::voxel_t*> basement;
 	float blend_factor_from_vapor(float vapor, float a);
@@ -102,7 +107,7 @@ private:
 	float sun_x, sun_y, sun_z, sun_azimuth, sun_elevation;
 	float cloud_x, cloud_y, cloud_z;
 
-	Material *material, *base;
+	Material *material, *base, *lightmap;
 	Matrix *m;
 
 
