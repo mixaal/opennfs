@@ -573,6 +573,10 @@ void CloudLayer::render_plate(types::XYZ A, types::XYZ B, types::XYZ C, types::X
 
 }
 
+void CloudLayer::set_air_humidity(float humidity)
+{
+	air_hum_alpha = humidity;
+}
 
 void CloudLayer::light_shafts()
 {
@@ -586,7 +590,7 @@ void CloudLayer::light_shafts()
 	//glDisable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glBegin(GL_QUADS);
-	glColor4f(1.0f, 1.0f, 1.0f, 0.01f);
+	glColor4f(1.0f, 1.0f, 1.0f, air_hum_alpha);
 
 	
 	float range_x = 2/128.0f * scale * cloud_map_width ;

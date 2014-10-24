@@ -72,6 +72,7 @@ public:
 	void set_observer_position(float x, float y, float z);
 	void set_sun_position(float x, float y, float z);
 	void light_shafts();
+	void set_air_humidity(float humidity);
 
 private:
 	float altitude;
@@ -100,6 +101,7 @@ private:
 	std::vector<types::voxel_t*> basement;
 	float blend_factor_from_vapor(float vapor, float a);
 	float dissipation=0.01f;
+	float air_hum_alpha = 0.01f;
 
 	float sun_red, sun_green, sun_blue;
 

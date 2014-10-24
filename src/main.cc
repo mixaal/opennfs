@@ -184,6 +184,8 @@ int main(int argc, char *argv[]) {
 		500.0f
 	);
 
+	clouds->set_air_humidity(0.02f);
+
 	visualizer::CloudLayer *clouds2 =new visualizer::CloudLayer(
 		"data/clouds/cloud-layer.map",
 		100.0f,
