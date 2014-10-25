@@ -9,6 +9,7 @@
 #include <opennfs/cloud.h>
 #include <opennfs/camera.h>
 #include <opennfs/world_time.h>
+#include <opennfs/config_util.h>
 
 #define KIA_RIO_YELLOW 0
 #define KIA_RIO_BLUE   1
@@ -151,26 +152,26 @@ static GLint triangle;
 static visualizer::SkyDome *sky = NULL;
 static int _day=1, _hour=8, _minute=0, _sec=0;
 
-//#define SCREEN_W 1920
-//#define SCREEN_H 1080
-
-#ifndef _SCREEN_W
-#  warning "Undefined Screen width."
-#  define _SCREEN_W 1280
-#endif
-
-#ifndef _SCREEN_H
-#  warning "Undefined Screen height."
-#  define _SCREEN_H 1024
-#endif
 int main(int argc, char *argv[]) {
 	SDL_Event event;
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	visualizer::Window *window = visualizer::Window::createWindow("ahojda", _SCREEN_W,
-			_SCREEN_H, SDL_WINDOW_OPENGL|SDL_WINDOW_FULLSCREEN, 16);
-	visualizer::Scene *scene1 = new visualizer::Scene(0, 0, _SCREEN_W, _SCREEN_H);
+	game::toolkit::ConfigParser gfx_config("config/gfx");
+	int screen_width  = gfx_config.get_int("screen.width");
+	int screen_height = gfx_config.get_int("screen.height");
+	bool fullscreen   = gfx_config.get_bool("screen.fullscreen");
+	int antialiasing  = gfx_config.get_int("screen.antialiasing");
+	int screen_depth  = gfx_config.get_int("screen.depth");
+	int flags = SDL_WINDOW_OPENGL;
+	if(fullscreen) {
+		flags |= SDL_WINDOW_FULLSCREEN;
+	}
+
+	visualizer::Window *window = visualizer::Window::createWindow(
+		std::string("ahojda"), screen_width, screen_height, flags, screen_depth, antialiasing
+	);
+	visualizer::Scene *scene1 = new visualizer::Scene(0, 0, screen_width, screen_height);
 	scene1->lighting_enable();
 	scene1->fov(60.0f);
 	scene1->fpsrate(60);

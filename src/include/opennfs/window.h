@@ -14,7 +14,7 @@
 namespace visualizer {
 class Window {
 public:
-	static Window * createWindow(std::string title, int width, int height, int flags, int depth);
+	static Window * createWindow(std::string title, int width, int height, int flags, int depth, int antialiasing);
 	int getWidth();
 	int getHeight();
 	int getDepth();
@@ -25,14 +25,15 @@ private:
 	std::string title;
 	int width;
 	int height;
-	int depth;
 	int flags;
+	int depth;
+	int antialiasing;
 
 	static SDL_Window *window;
 	static SDL_GLContext glCtx;
 
 	static void cleanUp();
-	Window(std::string title, int width, int height, int flags, int depth);
+	Window(std::string title, int width, int height, int flags, int depth, int antialiasing);
 	~Window() { }
 	Window(Window const&);
 	Window& operator=(Window const);

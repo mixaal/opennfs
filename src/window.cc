@@ -15,27 +15,28 @@ Window *Window::instanceHolder=0;
 SDL_Window *Window::window=0;
 SDL_GLContext Window::glCtx=0;
 
-Window* Window::createWindow(std::string title, int width, int height, int flags, int depth)
+Window* Window::createWindow(std::string title, int width, int height, int flags, int depth, int antialiasing)
 {
 	if (instanceHolder == 0)
-		instanceHolder = new Window(title, width, height, flags, depth);
+		instanceHolder = new Window(title, width, height, flags, depth, antialiasing);
 	return instanceHolder;
 }
 
-Window::Window(std::string title, int width, int height, int flags, int depth) :
+Window::Window(std::string title, int width, int height, int flags, int depth, int antialiasing) :
 		title(title),
 		width(width),
 		height(height),
 		flags(flags),
-		depth(depth)
+		depth(depth),
+		antialiasing(antialiasing)
 {
 	SDL_Init (SDL_INIT_EVERYTHING);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-#ifdef _ANTIALIASING
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, _ANTIALIASING);
-#endif
+	if(antialiasing > 1) {
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, antialiasing);
+	}
 	//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth);
 	window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 	if (!window) {

@@ -1,0 +1,7 @@
+screen.antialiasing=4
+screen.width=800
+screen.height=600
+screen.fullscreen=false
+screen.depth=16
+
+texture.anisotropic=true
