@@ -13,6 +13,16 @@
 namespace visualizer {
 
 
+void CloudLayer::enable_light_shafts()
+{
+	_light_shafts_enabled = true;
+}
+
+void CloudLayer::disable_light_shafts()
+{
+	_light_shafts_enabled = false;
+}
+
 float CloudLayer::rayleigh(float a)
 {
 	return 0.75f * (1 + cos(a)*cos(a));
@@ -580,6 +590,9 @@ void CloudLayer::set_air_humidity(float humidity)
 
 void CloudLayer::light_shafts()
 {
+	if(!_light_shafts_enabled) {
+		return;
+	}
 	// render light shafts only when we are under the cloud layer
 	if(eye_y > cloud_y) return;
 	if(sun_y < 2*cloud_y) return;

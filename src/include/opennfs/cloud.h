@@ -73,6 +73,8 @@ public:
 	void set_sun_position(float x, float y, float z);
 	void light_shafts();
 	void set_air_humidity(float humidity);
+	void enable_light_shafts();
+	void disable_light_shafts();
 
 private:
 	float altitude;
@@ -102,6 +104,7 @@ private:
 	float blend_factor_from_vapor(float vapor, float a);
 	float dissipation=0.01f;
 	float air_hum_alpha = 0.01f;
+	bool _light_shafts_enabled = true;
 
 	float sun_red, sun_green, sun_blue;
 
