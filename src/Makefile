@@ -11,7 +11,7 @@ CXXFLAGS=-std=c++11 -DSDL_MAIN_HANDLED=1 -flto -march=native -funroll-loops -Wal
 LIBS= -lGLEW -lGL -lGLU -lSDL2 -lSDL2_image
 
 MAIN=main
-OBJECTS=main.o scene.o scene_handler.o window.o model.o tools.o light.o material.o skydome.o ephem.o cloud.o billboard.o matrix.o gauss.o field.o camera.o world_time.o config_util.o
+OBJECTS=main.o scene.o scene_handler.o window.o model.o tools.o light.o material.o skydome.o ephem.o cloud.o billboard.o matrix.o gauss.o field.o camera.o world_time.o config_util.o level.o
 
 $(MAIN): $(OBJECTS)
 	$(CXX) -o $(MAIN) $(OBJECTS) $(LIBS)

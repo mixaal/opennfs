@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <vector>
 
 namespace game {
 	namespace configuration {
@@ -16,6 +17,27 @@ namespace game {
 				int depth;
 				std::string title;
 			} screen;
+
+			typedef struct {
+				float x, y, z;
+			} position3d;
+
+			typedef struct {
+				std::string map_name;
+				float scale;
+				float altitude;
+				float air_humidity;
+				position3d position;
+			} cloud;
+
+			typedef std::vector<cloud> all_clouds;
+
+			typedef struct {
+				float exposure;
+				float turbidity;
+				float sunlight;
+				float radius;
+			} skydome;
 		}
 
 
@@ -28,6 +50,41 @@ namespace game {
 			private:
 				types::screen _screen;
 				void parse();
+		};
+
+		class SkyDomeProperties {
+			public:
+				SkyDomeProperties() {
+					_prefix=".";
+					parse();
+				}
+				SkyDomeProperties(std::string prefix) : _prefix(prefix) {
+					parse();
+				}
+				types::skydome get();
+			private:
+				types::skydome _skydome;
+				void parse();
+				std::string _prefix;
+		};
+
+
+		class CloudProperties {
+			public:
+				CloudProperties() {
+					_prefix = ".";
+					parse();
+				}
+				CloudProperties(std::string prefix) : _prefix(prefix) {
+					parse();
+				}
+				void parse();
+				types::all_clouds get();
+				int get_cloud_no();
+			private:
+				types::all_clouds _clouds;
+				types::cloud parse(int idx);
+				std::string _prefix;
 		};
 	}
 

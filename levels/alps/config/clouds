@@ -1,0 +1,8 @@
+cloud.layer_no=1
+
+cloud.layer.1.map=data/clouds/cloud-map-256
+cloud.layer.1.scale=100.0f
+cloud.layer.1.altitude=500.0f
+cloud.layer.1.air_humidity=0.02f
+cloud.layer.1.position.x=-680.0f
+cloud.layer.1.position.z=0.0f

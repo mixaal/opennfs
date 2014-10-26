@@ -10,6 +10,7 @@
 #include <opennfs/camera.h>
 #include <opennfs/world_time.h>
 #include <opennfs/config_util.h>
+#include <opennfs/level.h>
 
 #define KIA_RIO_YELLOW 0
 #define KIA_RIO_BLUE   1
@@ -149,7 +150,6 @@ public:
 
 
 static GLint triangle;
-static visualizer::SkyDome *sky = NULL;
 static int _day=1, _hour=8, _minute=0, _sec=0;
 
 int main(int argc, char *argv[]) {
@@ -164,6 +164,7 @@ int main(int argc, char *argv[]) {
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 
+	// Configure the main screen
 	visualizer::Window *window = visualizer::Window::createWindow(
 		screen.title,
 		screen.width,
@@ -172,60 +173,21 @@ int main(int argc, char *argv[]) {
 		screen.depth,
 		screen.antialiasing
 	);
+
+	// Create and configure the scene paramaters
 	visualizer::Scene *scene1 = new visualizer::Scene(0, 0, screen.width, screen.height);
 	scene1->lighting_enable();
 	scene1->fov(60.0f);
 	scene1->fpsrate(60);
 	//visualizer::Model *kiaRio =new visualizer::Model(KIA_RIO_YELLOW, "data/cars/kiario/kia_rio.obj", 2);
-	visualizer::CloudLayer *clouds =new visualizer::CloudLayer(
-		"data/clouds/cloud-map-256",
-		//"overcast.map",
-		//"cumulus_layer.map",
-		//"data/clouds/cloud-layer.map",
-		100.0f,
-		500.0f
-	);
 
-	clouds->set_air_humidity(0.02f);
+	game::level::Initializer alps(scene1, "levels/alps", &world_time);
 
-	visualizer::CloudLayer *clouds2 =new visualizer::CloudLayer(
-		"data/clouds/cloud-layer.map",
-		100.0f,
-		500.0f
-	);
-
-	visualizer::CloudLayer *clouds3 =new visualizer::CloudLayer(
-		"data/clouds/cloud-layer.map",
-		100.0f,
-		500.0f
-	);
-
-
-	
+	// Add models
 	visualizer::Model *tyrol =new visualizer::Model(CLOUD_LAYER, "data/terrain/alpy2.obj", 1, 700.0f);
 	scene1->addModel(tyrol);
-	scene1->add_clouds(clouds);
-//	scene1->add_clouds(clouds2);
-//	scene1->add_clouds(clouds3);
-        sky = new visualizer::SkyDome(
-		50.0f, 15.0f,   /* latitude, longitude */
-		world_time.get_year(), 
-		world_time.get_month(), 
-		world_time.get_day(),
-		world_time.get_hour(),
-		world_time.get_minute(),
-		world_time.get_seconds(), 
-		1.0f,            /* exposure */
-		4.0f,            /* turbidity */
-		15.0f,
-		4000.0f
 
-	);
-	printf("sky=%p\n", sky);
-	//sunLight->enable();
-	//sunLight->position(sky->solX(), -sky->solZ(), sky->solY());
-	scene1->add_atmosphere(sky);
-
+	// Sky dome
 	scene1->onRender([](visualizer::Scene *s) {
 		static float x=-700.0f;
 		static float y=-2.5f;
@@ -251,6 +213,7 @@ int main(int argc, char *argv[]) {
 		world_time.update();
 		s->eye(camera.get_position());
 		s->forward(camera.get_forward());
+		visualizer::SkyDome *sky = s->get_atmosphere();
 		sky->update(world_time);
 		visualizer::CloudLayer *clouds = s->get_cloud_layer().at(0);
 //		visualizer::CloudLayer *clouds2 = s->get_cloud_layer().at(1);
@@ -263,7 +226,7 @@ int main(int argc, char *argv[]) {
 #if 0 // fog, needs scale of 1000.0f
 		clouds->position(-1700.0f, 100.0f, -2350.0f);
 #else // mid-alt clouds, scale==500.0f
-		clouds->position(-680.0f, 500.0f, 0.0f);
+	//	clouds->position(-680.0f, 500.0f, 0.0f);
 #endif
 //		clouds2->position(300.0f, 500.0f, 0.0f);
 //		clouds3->position(-1680.0f, 500.0f, 0.0f);

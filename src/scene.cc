@@ -449,6 +449,11 @@ namespace visualizer {
  		_lighting.global_ambient[3]=a;
  	}
 
+	SkyDome *Scene::get_atmosphere() 
+	{
+		return _atmosphere.sky;
+	}
+
 	void Scene::add_atmosphere(SkyDome *sky) {
 		if (_atmosphere.enabled) {
 			return;

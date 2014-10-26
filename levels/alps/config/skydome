@@ -1,0 +1,4 @@
+skydome.exposure=1.0
+skydome.turbidity=4.0
+skydome.radius=4000.0
+skydome.sunlight=15.0

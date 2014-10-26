@@ -148,6 +148,7 @@ public:
 	void lighting_disable();
 	void global_ambient(float r, float g, float b, float a=1.0f);
 	void add_atmosphere(SkyDome *sky);
+	SkyDome *get_atmosphere();
 	void enable_multisample();
         void add_clouds(CloudLayer *clouds);
 };
