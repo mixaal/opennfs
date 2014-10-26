@@ -177,8 +177,8 @@ int main(int argc, char *argv[]) {
 	// Create and configure the scene paramaters
 	visualizer::Scene *scene1 = new visualizer::Scene(0, 0, screen.width, screen.height);
 	scene1->lighting_enable();
-	scene1->fov(60.0f);
-	scene1->fpsrate(60);
+	scene1->fov(screen.field_of_view);
+	scene1->fpsrate(screen.target_fps);
 	//visualizer::Model *kiaRio =new visualizer::Model(KIA_RIO_YELLOW, "data/cars/kiario/kia_rio.obj", 2);
 
 	game::level::Initializer alps(scene1, "levels/alps", &world_time);

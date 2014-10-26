@@ -16,6 +16,9 @@ namespace game {
 				int antialiasing;
 				int depth;
 				std::string title;
+				int target_fps;
+				float field_of_view;
+				
 			} screen;
 
 			typedef struct {

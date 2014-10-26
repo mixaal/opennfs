@@ -15,6 +15,8 @@ namespace game {
 			_screen.antialiasing  = _config.get_int("screen.antialiasing");
 			_screen.depth         = _config.get_int("screen.depth");
 			_screen.title         = _config.get_string("screen.title");
+			_screen.target_fps    = _config.get_int("screen.target_fps");
+			_screen.field_of_view = _config.get_float("screen.field_of_view");
 
 		}
 		
