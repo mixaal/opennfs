@@ -3,6 +3,26 @@
 #include <fstream>
 
 namespace game {
+
+	namespace configuration {
+		void ScreenProperties::parse() 
+		{
+			toolkit::ConfigParser _config("config/gfx");
+			_screen.width         = _config.get_int("screen.width");
+			_screen.height        = _config.get_int("screen.height");
+			_screen.fullscreen    = _config.get_bool("screen.fullscreen");
+			_screen.antialiasing  = _config.get_int("screen.antialiasing");
+			_screen.depth         = _config.get_int("screen.depth");
+			_screen.title         = _config.get_string("screen.title");
+
+		}
+		
+		types::screen ScreenProperties::get() 
+		{
+			return _screen;
+		}
+	}
+
 	namespace toolkit {
 		
 		std::string ConfigParser::get_string(std::string key) 

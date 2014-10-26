@@ -157,21 +157,22 @@ int main(int argc, char *argv[]) {
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	game::toolkit::ConfigParser gfx_config("config/gfx");
-	int screen_width  = gfx_config.get_int("screen.width");
-	int screen_height = gfx_config.get_int("screen.height");
-	bool fullscreen   = gfx_config.get_bool("screen.fullscreen");
-	int antialiasing  = gfx_config.get_int("screen.antialiasing");
-	int screen_depth  = gfx_config.get_int("screen.depth");
+	game::configuration::ScreenProperties screen_properties;
+	game::configuration::types::screen screen = screen_properties.get();
 	int flags = SDL_WINDOW_OPENGL;
-	if(fullscreen) {
+	if(screen.fullscreen) {
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 
 	visualizer::Window *window = visualizer::Window::createWindow(
-		std::string("ahojda"), screen_width, screen_height, flags, screen_depth, antialiasing
+		screen.title,
+		screen.width,
+		screen.height,
+		flags,
+		screen.depth,
+		screen.antialiasing
 	);
-	visualizer::Scene *scene1 = new visualizer::Scene(0, 0, screen_width, screen_height);
+	visualizer::Scene *scene1 = new visualizer::Scene(0, 0, screen.width, screen.height);
 	scene1->lighting_enable();
 	scene1->fov(60.0f);
 	scene1->fpsrate(60);

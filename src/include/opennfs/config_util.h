@@ -6,6 +6,31 @@
 #include <map>
 
 namespace game {
+	namespace configuration {
+
+		namespace types {
+			typedef struct {
+				int width, height;
+				bool fullscreen;
+				int antialiasing;
+				int depth;
+				std::string title;
+			} screen;
+		}
+
+
+		class ScreenProperties {
+			public:
+				ScreenProperties() {
+					parse();
+				}
+				types::screen get();
+			private:
+				types::screen _screen;
+				void parse();
+		};
+	}
+
 	namespace toolkit {
 
 		typedef std::pair<std::string, std::string> config_param;

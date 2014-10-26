@@ -3,5 +3,6 @@ screen.width=800
 screen.height=600
 screen.fullscreen=false
 screen.depth=16
+screen.title="Open Need for Speed (c) 2014 MIKC"
 
 texture.anisotropic=true
