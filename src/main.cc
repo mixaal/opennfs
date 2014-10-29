@@ -184,8 +184,13 @@ int main(int argc, char *argv[]) {
 	game::level::Initializer alps(scene1, "levels/alps", &world_time);
 
 	// Add models
-	visualizer::Model *tyrol =new visualizer::Model(CLOUD_LAYER, "data/terrain/alpy2.obj", 1, 700.0f);
-	scene1->addModel(tyrol);
+	//visualizer::Model *tyrol =new visualizer::Model(CLOUD_LAYER, "data/terrain/alpy2.obj", 1, 700.0f);
+	//scene1->addModel(tyrol);
+
+	visualizer::Model *alpsModel =new visualizer::Model(50, "data/alps1/al1.tri.obj", 1, 0.05f);
+	alpsModel->positionInstance(0, 0.0f, 0.0f, -2700.0f);
+	scene1->addModel(alpsModel);
+	
 
 	// Sky dome
 	scene1->onRender([](visualizer::Scene *s) {

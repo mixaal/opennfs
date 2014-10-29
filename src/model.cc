@@ -175,6 +175,33 @@ void Model::draw_towards(float eye_x, float eye_y, float eye_z)
 
 }
 
+void Model::drawModel() 
+{
+		glBegin(GL_TRIANGLES);
+		for(int i=0; i<_indices.size(); i++) {
+			int idx = _indices.at(i);
+			float u = _texcoords.at(2*idx);
+			float v = _texcoords.at(2*idx+1);
+
+			float x = _vertices.at(3*idx);
+			float y = _vertices.at(3*idx+1);
+			float z = _vertices.at(3*idx+2);
+
+			float nx = _normals.at(3*idx);
+			float ny = _normals.at(3*idx+1);
+			float nz = _normals.at(3*idx+2);
+
+			glNormal3f(nx, ny, nz);
+			glTexCoord2f(u, v);
+			glVertex3f(x, y, z);
+
+			//std::cout << "Draw: T"<< idx << ": [" << u << ", " << v << "]" << std::endl;
+			//std::cout << "Draw: P"<< i << ": [" << x << ", " << y << ", " << z << "]" << std::endl;
+		}
+		glEnd();
+
+}
+
 void Model::draw() {
 	if (light_enabled) {
 		glEnable(GL_LIGHTING);
@@ -195,11 +222,17 @@ void Model::draw() {
 		glColorPointer(3, GL_FLOAT, 0, _colors.data());
 	}
 	glTexCoordPointer(2, GL_FLOAT, 0, _texcoords.data());
+
+
+	//std::cout << std::endl << std::endl;
+
+
 	for (int idx = 0; idx < _matrices.size(); idx++) {
 		glPushMatrix();
 		glMultMatrixf(_matrices.at(idx)->get());
-		glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT,
-				_indices.data());
+		//glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT,
+		//		_indices.data());
+		drawModel();
 		glPopMatrix();
 	}
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -350,6 +383,7 @@ void Model::load() {
 
             	_texcoords.at(2*v_i) = __tmp_vertex_texcoords.at(2*t_i);
             	_texcoords.at(2*v_i+1) = __tmp_vertex_texcoords.at(2*t_i+1);
+		//std::cout << "TEX COORDS: idx: " << v_i << "[" <<  _texcoords.at(2*v_i) << ", " << _texcoords.at(2*v_i+1) << "]" << std::endl;
 
             }
 

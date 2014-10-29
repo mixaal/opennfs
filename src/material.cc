@@ -19,10 +19,15 @@ std::map<std::string, GLuint> Material::textures;
 
 void Material::texture_from_data(size_t width, size_t height, Uint32 *pixels)
 {
+	float aniso = 0.0f;
 	glGenTextures( 1, &texno );
 	glBindTexture( GL_TEXTURE_2D, texno );
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+	// anisotropic filtering
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+
 	gluBuild2DMipmaps(GL_TEXTURE_2D, 4, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 }
 

@@ -32,6 +32,7 @@ private:
 	std::vector<float> _colors;
 
 	void load();
+	void drawModel() ;
 	void loadMtl(std::string file);
         bool light_enabled;
 	float scale;
