@@ -230,9 +230,9 @@ void Model::draw() {
 	for (int idx = 0; idx < _matrices.size(); idx++) {
 		glPushMatrix();
 		glMultMatrixf(_matrices.at(idx)->get());
-		//glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT,
-		//		_indices.data());
-		drawModel();
+		glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT,
+				_indices.data());
+		//drawModel();
 		glPopMatrix();
 	}
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
