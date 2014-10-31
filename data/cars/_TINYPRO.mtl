@@ -1,0 +1,7 @@
+newmtl _TINYPRO
+Kd 1.0 1.0 1.0
+Ka 0.2 0.2 0.2
+Ks 0.2 0.2 0.2
+Ns 128
+map_Kd _TINYPRO.png
+

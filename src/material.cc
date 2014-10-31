@@ -12,10 +12,10 @@
 #include <opennfs/gauss.h>
 #include <opennfs/field.h>
 
+extern volatile bool anisotropic;
 namespace visualizer {
 
 std::map<std::string, GLuint> Material::textures;
-
 
 void Material::texture_from_data(size_t width, size_t height, Uint32 *pixels)
 {
@@ -24,9 +24,17 @@ void Material::texture_from_data(size_t width, size_t height, Uint32 *pixels)
 	glBindTexture( GL_TEXTURE_2D, texno );
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	// anisotropic filtering
-	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+	//glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
 
 	gluBuild2DMipmaps(GL_TEXTURE_2D, 4, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 }
@@ -229,5 +237,12 @@ void Material::draw() {
 	glMateriali(GL_FRONT, GL_SHININESS, nexp);
 	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glBindTexture(GL_TEXTURE_2D, texno);
+	
+	if(anisotropic) {
+		float aniso = 0.0f;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+		//std::cout << "anisotrpic: " << aniso << std::endl;
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
+	}
 }
 };

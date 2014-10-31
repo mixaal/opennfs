@@ -21,6 +21,8 @@
 static game::WorldTime world_time(2014, 8, 1, 14, 0, 0);
 static visualizer::Camera camera(0.0f, 20.0f, -700.0f, 90.0f, 0.0f, 1.5f);
 
+bool anisotropic = false;
+
 class SceneHandlerImpl: public visualizer::SceneHandler {
 public:
 	SceneHandlerImpl(visualizer::Window *window) :
@@ -97,6 +99,14 @@ public:
 			terminate();
 			break;
 
+		case SDLK_F12:
+			if(anisotropic) {
+				anisotropic=false;
+			}
+			else {
+				anisotropic=true;
+			}
+			break;
                 case SDLK_F10:
 			if( wireframe ) {
 				wireframe = false;
@@ -187,7 +197,7 @@ int main(int argc, char *argv[]) {
 	//visualizer::Model *tyrol =new visualizer::Model(CLOUD_LAYER, "data/terrain/alpy2.obj", 1, 700.0f);
 	//scene1->addModel(tyrol);
 
-	visualizer::Model *alpsModel =new visualizer::Model(50, "data/alps1/al1.tri.obj", 1, 0.05f);
+	visualizer::Model *alpsModel =new visualizer::Model(50, "data/alps3/al3.tri.obj", 1, 0.05f);
 	alpsModel->positionInstance(0, 0.0f, 0.0f, -2700.0f);
 	scene1->addModel(alpsModel);
 	

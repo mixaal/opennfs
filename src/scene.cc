@@ -194,9 +194,9 @@ namespace visualizer {
     }
 
 	void Scene::initialize() {
-        if(_msaa.enabled) {
-            glEnable(GL_MULTISAMPLE);
-        }
+        //if(_msaa.enabled) {
+        //    glEnable(GL_MULTISAMPLE);
+        //}
 		glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 		glViewport(left, top, w, h);
 		glScissor(left, top, w, h);
