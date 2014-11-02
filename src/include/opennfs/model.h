@@ -5,8 +5,8 @@
  *      Author: mikc
  */
 
-#ifndef MODEL_H_
-#define MODEL_H_
+#ifndef _OPENNFS_MODEL_H_
+#define _OPENNFS_MODEL_H_
 
 
 #include <string>
@@ -27,7 +27,7 @@ private:
 	std::vector<float> _distance_from_vector;
 	std::vector<float> _normals;
 	std::vector<float> _texcoords;
-	std::vector<unsigned int> _indices;
+	//std::vector<unsigned int> _indices;
 	std::vector<Matrix*> _matrices;
 	std::vector<float> _colors;
 

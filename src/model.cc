@@ -163,8 +163,9 @@ void Model::draw_towards(float eye_x, float eye_y, float eye_z)
 		billboard.sphericalBegin(
 			obj_x, obj_y, obj_z
 		);
-		glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT,
-				_indices.data());
+		//glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT,
+		//		_indices.data());
+		glDrawArrays(GL_TRIANGLES, 0, _vertices.size()/3);
 		billboard.end();
 		glPopMatrix();
 	}
@@ -175,6 +176,7 @@ void Model::draw_towards(float eye_x, float eye_y, float eye_z)
 
 }
 
+#if 0
 void Model::drawModel() 
 {
 		glBegin(GL_TRIANGLES);
@@ -201,6 +203,7 @@ void Model::drawModel()
 		glEnd();
 
 }
+#endif
 
 void Model::draw() {
 	if (light_enabled) {
@@ -230,8 +233,10 @@ void Model::draw() {
 	for (int idx = 0; idx < _matrices.size(); idx++) {
 		glPushMatrix();
 		glMultMatrixf(_matrices.at(idx)->get());
-		glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT,
-				_indices.data());
+		//glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT,
+		//		_indices.data());
+
+		glDrawArrays(GL_TRIANGLES, 0, _vertices.size()/3);
 		//drawModel();
 		glPopMatrix();
 	}
@@ -326,9 +331,9 @@ void Model::load() {
 			std::vector<float> vtx = stool.toFloat(line, ' ', 1);
 			assert(vtx.size()==3);
 			//std::cout << "Vertex:|" << vtx.at(0) << "|" << vtx.at(1) << vtx.at(2) << std::endl;
-			_vertices.push_back(scale * vtx.at(0));
-			_vertices.push_back(scale * vtx.at(1));
-			_vertices.push_back(scale * vtx.at(2));
+			__tmp_vertices.push_back(scale * vtx.at(0));
+			__tmp_vertices.push_back(scale * vtx.at(1));
+			__tmp_vertices.push_back(scale * vtx.at(2));
 		}
 		if(stool.startswith(line, "vn ")) {
 			std::vector<float> vtx = stool.toFloat(line, ' ', 1);
@@ -353,43 +358,53 @@ void Model::load() {
 				exit(1);
 			}
 			//assert(_triangle_indices.size()==4); // includes f
-            for (int idx=1; idx<_triangle_indices.size();idx++) {
-            	std::vector<float> vtn_idx=stool.toFloat(_triangle_indices.at(idx), '/');
-            	assert(vtn_idx.size()==3);
-            	int v_i = vtn_idx.at(0) - 1;
-            	int t_i = vtn_idx.at(1) - 1;
-            	int n_i = vtn_idx.at(2) - 1;
-            	assert(v_i >= 0);
-            	assert(t_i >= 0);
-            	assert(n_i >= 0);
+ 	           for (int idx=1; idx<_triangle_indices.size();idx++) {
+        	    	std::vector<float> vtn_idx=stool.toFloat(_triangle_indices.at(idx), '/');
+	            	assert(vtn_idx.size()==3);
+        	    	int v_i = vtn_idx.at(0) - 1;
+         		int t_i = vtn_idx.at(1) - 1;
+ 	           	int n_i = vtn_idx.at(2) - 1;
+        	    	assert(v_i >= 0);
+	            	assert(t_i >= 0);
+        	    	assert(n_i >= 0);
 
-            	assert(1+2*t_i<__tmp_vertex_texcoords.size());
-            	assert(2+3*n_i<__tmp_vertex_normals.size());
+            		assert(1+2*t_i<__tmp_vertex_texcoords.size());
+	            	assert(2+3*n_i<__tmp_vertex_normals.size());
+	            	assert(2+3*v_i<__tmp_vertices.size());
 
-            	_indices.push_back(v_i);
+			float x = __tmp_vertices.at(3*v_i);
+			float y = __tmp_vertices.at(3*v_i+1);
+			float z = __tmp_vertices.at(3*v_i+2);
 
-            	if(3*v_i+2>=_normals.size()) {
-            		// extend
-            		_normals.resize(3*v_i+3);
-            	}
-            	if(2*v_i+1>=_texcoords.size()) {
-            		//extend
-            		_texcoords.resize(2*v_i+2);
-            	}
+			float nx = __tmp_vertex_normals.at(3*n_i);
+			float ny = __tmp_vertex_normals.at(3*n_i+1);
+			float nz = __tmp_vertex_normals.at(3*n_i+2);
 
-            	_normals.at(3*v_i) = __tmp_vertex_normals.at(3*n_i);
-            	_normals.at(3*v_i+1) = __tmp_vertex_normals.at(3*n_i+1);
-            	_normals.at(3*v_i+2) = __tmp_vertex_normals.at(3*n_i+2);
+			float tu = __tmp_vertex_texcoords.at(2*t_i);
+			float tv = __tmp_vertex_texcoords.at(2*t_i+1);
 
-            	_texcoords.at(2*v_i) = __tmp_vertex_texcoords.at(2*t_i);
-            	_texcoords.at(2*v_i+1) = __tmp_vertex_texcoords.at(2*t_i+1);
-		//std::cout << "TEX COORDS: idx: " << v_i << "[" <<  _texcoords.at(2*v_i) << ", " << _texcoords.at(2*v_i+1) << "]" << std::endl;
+			_vertices.push_back(x);
+			_vertices.push_back(y);
+			_vertices.push_back(z);
+	
+            		_normals.push_back(nx);
+            		_normals.push_back(ny);
+            		_normals.push_back(nz);
 
-            }
+			_texcoords.push_back(tu);
+			_texcoords.push_back(tv);
+
+			//std::cout << "TEX COORDS: idx: " << v_i << "[" <<  _texcoords.at(2*v_i) << ", " << _texcoords.at(2*v_i+1) << "]" << std::endl;
+
+	            }
 
 		}
 	}
-	std::cout << "Vtx: " << _vertices.size() << " Normals: " << _normals.size() << " Tex sz: " << _texcoords.size() << " Indices: " << _indices.size() << std::endl;
+	std::cout << "Vtx: " << _vertices.size() << " Normals: " << _normals.size() << " Tex sz: " << _texcoords.size() << std::endl;
+
+	assert(_vertices.size() == _normals.size());
+	assert(_vertices.size()/3 == _texcoords.size()/2);
+	
 }
 };
 
