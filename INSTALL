@@ -1,2 +1,8 @@
 sudo apt-get install libglew-dev
 sudo apt-get install libsdl2-dev libsdl2-image-dev
+
+# build
+make -C src
+
+# Run main app
+src/main
